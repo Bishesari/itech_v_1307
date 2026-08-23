@@ -35,7 +35,6 @@
             <flux:label badge="فارسی" class="text-xs">
                 {{ __('نام') }}
             </flux:label>
-
             <flux:input
                 wire:model="first_name_fa"
                 type="text"
@@ -43,8 +42,7 @@
                 required
                 autofocus
             />
-
-            <flux:error name="first_name_fa" />
+            <flux:error name="first_name_fa" class="-mt-2! text-xs"/>
         </flux:field>
 
 
@@ -60,8 +58,7 @@
                 input:class="text-center py-6 font-semibold text-base!"
                 required
             />
-
-            <flux:error name="last_name_fa" />
+            <flux:error name="last_name_fa" class="-mt-2! text-xs"/>
         </flux:field>
 
 
@@ -71,18 +68,15 @@
             variant="cards"
             class="max-sm:flex-col"
         >
-            <flux:radio
-                value="1"
-                label="ایرانی"
-                class="cursor-pointer"
-            />
-
-            <flux:radio
-                value="2"
-                label="اتباع خارجی"
-                class="cursor-pointer"
-            />
+            @foreach (\App\Enums\NationalityType::cases() as $type)
+                <flux:radio
+                    value="{{ $type->value }}"
+                    label="{{ $type->label() }}"
+                    class="cursor-pointer"
+                />
+            @endforeach
         </flux:radio.group>
+        <flux:error name="$nationality_type" class="-mt-2! text-xs"/>
 
 
         {{-- شناسه --}}
@@ -99,8 +93,7 @@
                 required
                 dir="ltr"
             />
-
-            <flux:error name="identity_number" />
+            <flux:error name="identity_number" class="-mt-2! text-xs"/>
         </flux:field>
 
 
@@ -118,8 +111,7 @@
                 dir="ltr"
                 maxlength="11"
             />
-
-            <flux:error name="mobile_number" />
+            <flux:error name="mobile_number" class="-mt-2! text-xs"/>
         </flux:field>
 
 
@@ -129,7 +121,7 @@
                 type="submit"
                 variant="primary"
                 color="teal"
-                class="w-full"
+                class="w-full cursor-pointer"
                 data-test="register-user-button"
             >
                 {{ __('ادامه ثبت نام') }}

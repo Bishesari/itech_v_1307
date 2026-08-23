@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Enums\NationalityType;
+use App\Rules\NationalCode;
+use App\Rules\NotIranianNationalCode;
+use App\Rules\PersianOnly;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -15,30 +20,39 @@ class extends Component
 
     public string $last_name_fa = '';
 
-    public string $nationality_type = '1';
+    public NationalityType $nationality_type = NationalityType::Iranian;
 
     public string $identity_number = '';
 
     public string $mobile_number = '';
 
-    public function continueRegister(): void
+    protected function rules(): array
     {
-        $validated = $this->validate([
-            'first_name_fa' => ['required', 'string', 'max:100'],
-            'last_name_fa' => ['required', 'string', 'max:100'],
-            'nationality_type' => ['required', 'in:1,2'],
+        return [
+            'first_name_fa' => ['required', 'string', 'min:2', 'max:40', new PersianOnly],
+            'last_name_fa' => ['required', 'string', 'min:2', 'max:50', new PersianOnly],
+            'nationality_type' => ['required', Rule::enum(NationalityType::class)],
             'identity_number' => [
                 'required',
                 'string',
-                $this->nationality_type === '1' ? 'digits:10' : 'max:20',
+                Rule::when(
+                    $this->nationality_type === NationalityType::Iranian,
+                    ['digits:10', new NationalCode],   // ایرانی
+                    ['digits_between:6,20', new NotIranianNationalCode]  // اتباع
+                ),
             ],
             'mobile_number' => [
                 'required',
+                'string',
+                'digits:11',
                 'regex:/^09\d{9}$/',
             ],
-        ]);
 
-        // مرحله بعد: تولید و ارسال OTP
+        ];
     }
 
+    public function continueRegister(): void
+    {
+        $this->validate();
+    }
 };
