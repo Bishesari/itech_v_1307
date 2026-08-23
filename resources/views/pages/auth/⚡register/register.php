@@ -12,9 +12,9 @@ class extends Component
 {
     public string $first_name_fa = '';
     public string $last_name_fa = '';
-    public string $n_code = '';
-
-    public string $mobile = '';
+    public string $nationality_type = '1';
+    public string $identity_number = '';
+    public string $mobile_number = '';
 
 
 };
