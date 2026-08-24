@@ -169,6 +169,7 @@ return [
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
 
+    'iranian_mobile' => 'شماره موبایل معتبر نیست. نمونه: 09121234567',
     'persian_only' => 'برای :attribute فقط حروف فارسی مجاز است.',
     'national_code' => 'کد ملی وارد شده معتبر نیست.',
 

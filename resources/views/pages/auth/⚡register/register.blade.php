@@ -36,9 +36,11 @@
                 {{ __('نام') }}
             </flux:label>
             <flux:input
-                wire:model="first_name_fa"
+                wire:model.blur="first_name_fa"
                 type="text"
                 input:class="text-center py-6 font-semibold text-base!"
+                inputmode="text"
+                autocomplete="given-name"
                 required
                 autofocus
             />
@@ -76,7 +78,7 @@
                 />
             @endforeach
         </flux:radio.group>
-        <flux:error name="$nationality_type" class="-mt-2! text-xs"/>
+        <flux:error name="nationality_type" class="-mt-2! text-xs"/>
 
 
         {{-- شناسه --}}
