@@ -34,5 +34,11 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'parsgreen' => [
+        'api_key' => env('PARSGREEN_API_KEY'),
+        'base_url' => env('PARSGREEN_BASE_URL', 'https://sms.parsgreen.ir'),
+        'default_sms_number' => env('PARSGREEN_DEFAULT_SMS_NUMBER'),
+        'otp_template_id' => (int) env('PARSGREEN_OTP_TEMPLATE_ID', 0),
+        'otp_add_name' => filter_var(env('PARSGREEN_OTP_ADD_NAME', false), FILTER_VALIDATE_BOOLEAN),
+    ],
 ];

@@ -11,7 +11,7 @@ class PersianName implements ValidationRule
     {
         // چون قبلاً نرمال‌سازی شده، فقط کاراکترهای مجاز را چک می‌کنیم
         if (!preg_match('/^[آ-یء\s\x{200C}]+$/u', $value)) {
-            $fail('فیلد :attribute باید فقط شامل حروف فارسی، فاصله و نیم‌فاصله باشد.');
+            $fail('فیلد :attribute باید فقط شامل حروف فارسی باشد.');
         }
     }
 }

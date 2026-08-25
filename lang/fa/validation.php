@@ -202,8 +202,8 @@ return [
     */
 
     'attributes' => [
-        'first_name_fa' => 'نام فارسی',
-        'last_name_fa' => 'فامیلی فارسی',
+        'first_name_fa' => 'نام',
+        'last_name_fa' => 'فامیلی',
         'identity_number' => 'کد شناسه',
         'mobile_number' => 'شماره موبایل',
     ],
