@@ -12,7 +12,6 @@ use App\Support\PersianText;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-
 use Livewire\Component;
 
 new
@@ -74,7 +73,10 @@ class extends Component
         $this->normalizeAll();
         $this->validate();
 
-        $this->sendNormalSms();
+
+        Flux::modal('edit-profile')->show();
+        $this->sendOtp();
+
 
         // مرحله بعدی ثبت‌نام...
     }
@@ -95,6 +97,8 @@ class extends Component
             'mobile_number' => ['bail', 'required', 'digits:11', 'starts_with:09'],
         ];
     }
+
+    public bool $otpSent = false;
 
     public function sendOtp(): void
     {

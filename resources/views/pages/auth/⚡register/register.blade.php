@@ -17,7 +17,7 @@
         {{-- نام --}}
         <flux:field>
             <flux:label badge="فارسی" class="text-xs">{{ __('نام') }}</flux:label>
-            <flux:input wire:model.blur.live="first_name_fa" type="text"
+            <flux:input wire:model="first_name_fa" type="text"
                         input:class="text-center py-6 font-semibold text-base!" required autofocus />
             <flux:error name="first_name_fa" class="-mt-2! text-xs"/>
         </flux:field>
@@ -25,7 +25,7 @@
         {{-- نام خانوادگی --}}
         <flux:field>
             <flux:label badge="فارسی" class="text-xs">{{ __('نام خانوادگی') }}</flux:label>
-            <flux:input wire:model.blur.live="last_name_fa" type="text"
+            <flux:input wire:model="last_name_fa" type="text"
                         input:class="text-center py-6 font-semibold text-base!" required />
             <flux:error name="last_name_fa" class="-mt-2! text-xs"/>
         </flux:field>
@@ -41,7 +41,7 @@
         {{-- شناسه --}}
         <flux:field>
             <flux:label class="text-xs"><span x-text="identityLabel"></span></flux:label>
-            <flux:input wire:model.blur.live="identity_number" x-bind:maxlength="identityMaxLength" type="text"
+            <flux:input wire:model="identity_number" x-bind:maxlength="identityMaxLength" type="text"
                 input:class="text-center pt-6.5 pb-5.5 tracking-widest font-semibold text-lg!"
                 required dir="ltr"/>
             <flux:error name="identity_number" class="-mt-2! text-xs"/>
@@ -50,7 +50,7 @@
         {{-- موبایل --}}
         <flux:field>
             <flux:label class="text-xs">{{ __('شماره موبایل') }}</flux:label>
-            <flux:input wire:model.blur.live="mobile_number" type="text"
+            <flux:input wire:model="mobile_number" type="text"
                 input:class="text-center pt-6.5 pb-5.5 tracking-widest font-semibold text-lg!"
                 required dir="ltr" maxlength="11" />
             <flux:error name="mobile_number" class="-mt-2! text-xs"/>
@@ -106,4 +106,23 @@
             </span>
         </flux:link>
     </div>
+
+
+
+    <flux:modal name="edit-profile" class="md:w-96">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Update profile</flux:heading>
+                <flux:text class="mt-2">Make changes to your personal details.</flux:text>
+            </div>
+            <flux:input label="Name" placeholder="Your name" />
+            <flux:input label="Date of birth" type="date" />
+            <div class="flex">
+                <flux:spacer />
+                <flux:button type="submit" variant="primary">Save changes</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+
 </div>
