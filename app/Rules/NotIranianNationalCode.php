@@ -11,14 +11,17 @@ final class NotIranianNationalCode implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $value = (string) $value;
+        if (! is_string($value)) {
+            return; // قانون string خودش گزارش می‌دهد
+        }
 
-        // فقط ارقام را جدا کن
-        $digits = preg_replace('/\D/', '', $value);
+        // فقط ورودی دقیقاً ۱۰ رقمی می‌تواند کد ملی باشد؛ بقیه اصلاً بررسی نمی‌شوند
+        if (strlen($value) !== 10 || ! ctype_digit($value)) {
+            return;
+        }
 
-        // اگر دقیقاً ۱۰ رقم بود و چک‌سام کد ملی را پاس کرد، رد کن
-        if (strlen($digits) === 10 && NationalCode::isValid($digits)) {
-            $fail('شناسه اختصاصی نمی‌تواند کد ملی باشد.');
+        if (NationalCode::isValid($value)) {
+            $fail('این شماره یک کد ملی ایرانی است. اگر تابعیت شما ایرانی است، نوع تابعیت را اصلاح کنید.');
         }
     }
 }
