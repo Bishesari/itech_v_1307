@@ -105,6 +105,20 @@
                 {{ __('در حال انتقال...') }}
             </span>
         </flux:link>
+
+
+
+
+    </div>
+
+    <button
+        wire:click="prepareSmsTest"
+    >
+        ارسال پیامک تستی
+    </button>
+
+    <div wire:loading wire:target="prepareSmsTest">
+        در حال آماده‌سازی درخواست...
     </div>
 
 
@@ -124,5 +138,38 @@
         </div>
     </flux:modal>
 
+    @script
+    <script>
+        $wire.on('send-normal-sms-test', async (event) => {
+            try {
+                const response = await fetch('{{ route('test.send-normal-sms') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        mobile: event.mobile,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.ok) {
+                    await $wire.smsTestSent(data.message ?? 'پیامک ارسال شد.');
+                } else {
+                    await $wire.smsTestFailed(data.message ?? 'ارسال پیامک ناموفق بود.');
+                }
+            } catch (error) {
+                await $wire.smsTestFailed('خطا در ارسال درخواست پیامک.');
+            }
+        });
+    </script>
+    @endscript
+
+
+
 
 </div>
+

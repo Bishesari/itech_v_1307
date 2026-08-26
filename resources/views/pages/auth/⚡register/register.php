@@ -132,4 +132,35 @@ class extends Component
 
         session()->flash('success', 'پیامک با موفقیت ارسال شد.');
     }
+
+
+
+
+
+    public string $mobile_nu = '09177755924';
+
+    public ?string $smsStatus = null;
+
+    public ?string $smsError = null;
+    public function prepareSmsTest(): void
+    {
+
+        $this->smsError = null;
+        $this->smsStatus = 'درخواست ارسال پیامک ثبت شد. در حال ارسال...';
+
+        $this->dispatch('send-normal-sms-test', mobile: $this->mobile_nu);
+        Flux::modal('edit-profile')->show();
+    }
+
+    public function smsTestSent(?string $message = null): void
+    {
+        $this->smsError = null;
+        $this->smsStatus = $message ?: 'پیامک ارسال شد.';
+    }
+
+    public function smsTestFailed(?string $message = null): void
+    {
+        $this->smsStatus = null;
+        $this->smsError = $message ?: 'ارسال پیامک ناموفق بود.';
+    }
 };
