@@ -49,33 +49,25 @@
 
         {{-- موبایل --}}
         <flux:field>
-            <flux:label class="text-xs">{{ __('شماره موبایل') }}</flux:label>
-            <flux:input wire:model="mobile_number" type="text"
-                input:class="text-center pt-6.5 pb-5.5 tracking-widest font-semibold text-lg!"
-                required dir="ltr" maxlength="11" />
+            <flux:label badge="کد تأیید به این شماره پیامک می‌شود." class="text-xs">{{ __('شماره موبایل') }}</flux:label>
+            <flux:input wire:model.blur="mobile_number" type="text"
+                        input:class="text-center pt-6.5 pb-5.5 tracking-widest font-semibold text-lg!"
+                        required dir="ltr" maxlength="11" />
             <flux:error name="mobile_number" class="-mt-2! text-xs"/>
         </flux:field>
 
-
-
-
-
-
-
-
-        {{-- Submit --}}
         <div class="flex items-center justify-end">
-            <flux:button
-                type="submit"
-                variant="primary"
-                color="teal"
-                class="w-full cursor-pointer"
-                data-test="register-user-button"
-            >
+            <flux:button type="submit" variant="primary" color="teal"
+                         class="w-full cursor-pointer"
+                         data-test="register-user-button">
+            <span wire:loading.remove wire:target="continueRegister">
                 {{ __('ادامه ثبت نام') }}
+            </span>
+                <span wire:loading wire:target="continueRegister">
+                {{ __('در حال ارسال کد...') }}
+            </span>
             </flux:button>
         </div>
-
     </form>
 
 
@@ -107,69 +99,126 @@
         </flux:link>
 
 
-
-
     </div>
 
-    <button
-        wire:click="prepareSmsTest"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <flux:modal
+        name="otp-verify"
+        class="md:w-96"
+        :dismissible="false"
     >
-        ارسال پیامک تستی
-    </button>
-
-    <div wire:loading wire:target="prepareSmsTest">
-        در حال آماده‌سازی درخواست...
-    </div>
-
-
-
-    <flux:modal name="edit-profile" class="md:w-96">
-        <div class="space-y-6">
+        <form wire:submit="verifyOtp"
+              x-data="{
+              remaining: 0,
+              timer: null,
+              start(s) {
+                  clearInterval(this.timer);
+                  this.remaining = s;
+                  this.timer = setInterval(() => {
+                      if (--this.remaining <= 0) clearInterval(this.timer);
+                  }, 1000);
+              },
+              get label() {
+                  const m = String(Math.floor(this.remaining / 60)).padStart(2, '0');
+                  const s = String(this.remaining % 60).padStart(2, '0');
+                  return `${m}:${s}`;
+              }
+          }"
+              x-on:otp-sent.window="start($event.detail.seconds)"
+              x-on:otp-cooldown.window="start($event.detail.seconds)"
+              x-init="start($wire.resendCooldown)"
+              class="space-y-6"
+        >
             <div>
-                <flux:heading size="lg">Update profile</flux:heading>
-                <flux:text class="mt-2">Make changes to your personal details.</flux:text>
+                <flux:heading size="lg">{{ __('تأیید شماره موبایل') }}</flux:heading>
+                <flux:text class="mt-2">
+                    {{ __('کد ۵ رقمی ارسال‌شده به شماره') }}
+                    <span class="font-semibold" dir="ltr">{{ $mobile_number }}</span>
+                    {{ __('را وارد کنید.') }}
+                </flux:text>
             </div>
-            <flux:input label="Name" placeholder="Your name" />
-            <flux:input label="Date of birth" type="date" />
-            <div class="flex">
+
+            <flux:field>
+                <flux:input
+                    wire:model="otp_code"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="5"
+                    dir="ltr"
+                    input:class="text-center py-6 tracking-[0.6em] font-bold text-2xl!"
+                    autofocus
+                />
+                <flux:error name="otp_code" class="-mt-2! text-xs"/>
+            </flux:field>
+
+            {{-- تایمر / ارسال مجدد --}}
+            <div class="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+                <template x-if="remaining > 0">
+                <span>
+                    {{ __('ارسال مجدد کد تا') }}
+                    <span class="font-semibold tabular-nums" dir="ltr" x-text="label"></span>
+                </span>
+                </template>
+
+                <template x-if="remaining <= 0">
+                    <flux:link
+                        href="#"
+                        x-on:click.prevent="$wire.requestOtp()"
+                        class="text-xs"
+                    >
+                        {{ __('ارسال مجدد کد') }}
+                    </flux:link>
+                </template>
+
+                <flux:link href="#" x-on:click.prevent="$wire.editMobile()" class="text-xs">
+                    {{ __('اصلاح شماره موبایل') }}
+                </flux:link>
+            </div>
+
+            <div class="flex gap-2">
                 <flux:spacer />
-                <flux:button type="submit" variant="primary">Save changes</flux:button>
+                <flux:button type="submit" variant="primary" color="teal" class="cursor-pointer">
+                    <span wire:loading.remove wire:target="verifyOtp">{{ __('تأیید و ادامه') }}</span>
+                    <span wire:loading wire:target="verifyOtp">{{ __('در حال بررسی...') }}</span>
+                </flux:button>
             </div>
-        </div>
+        </form>
     </flux:modal>
-
-    @script
-    <script>
-        $wire.on('send-normal-sms-test', async (event) => {
-            try {
-                const response = await fetch('{{ route('test.send-normal-sms') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    },
-                    body: JSON.stringify({
-                        mobile: event.mobile,
-                    }),
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.ok) {
-                    await $wire.smsTestSent(data.message ?? 'پیامک ارسال شد.');
-                } else {
-                    await $wire.smsTestFailed(data.message ?? 'ارسال پیامک ناموفق بود.');
-                }
-            } catch (error) {
-                await $wire.smsTestFailed('خطا در ارسال درخواست پیامک.');
-            }
-        });
-    </script>
-    @endscript
-
-
-
-
 </div>
+
 

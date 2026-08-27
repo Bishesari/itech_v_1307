@@ -6,7 +6,6 @@ use App\Enums\NationalityType;
 use App\Rules\NationalCode;
 use App\Rules\NotIranianNationalCode;
 use App\Rules\PersianName;
-use App\Services\Sms\ParsGreenSmsService;
 use App\Support\Digits;
 use App\Support\PersianText;
 use Illuminate\Validation\Rule;
@@ -19,6 +18,8 @@ new
 #[Title('ثبت نام')]
 class extends Component
 {
+    /* ------------------------------- فیلدها ------------------------------- */
+
     public string $first_name_fa = '';
 
     public string $last_name_fa = '';
@@ -29,36 +30,34 @@ class extends Component
 
     public string $mobile_number = '';
 
-    protected ParsGreenSmsService $sms;
+    public string $otp_code = '';
+    /* ------------------------------- وضعیت ------------------------------- */
 
-    public function boot(ParsGreenSmsService $sms): void
-    {
-        $this->sms = $sms;
-    }
+    public string $view_state = 'RegisterForm';
 
-    // نگاشت نام فیلد → تابع نرمال‌ساز
+    /* ---------------------------- نرمال‌سازی ----------------------------- */
+
     protected array $normalizers = [
         'first_name_fa' => [PersianText::class, 'name'],
         'last_name_fa' => [PersianText::class, 'name'],
         'identity_number' => [Digits::class, 'onlyDigits'],
         'mobile_number' => [Digits::class, 'onlyDigits'],
+        'otp_code' => [Digits::class, 'onlyDigits'],
     ];
 
-    // متد عمومی Livewire برای هر تغییر
-    public function updated($property): void
+    public function updated(string $property): void
     {
         $this->normalizeField($property);
     }
 
-    // نرمال‌سازی یک فیلد مشخص
     protected function normalizeField(string $field): void
     {
         if (! isset($this->normalizers[$field])) {
             return;
         }
+
         $callable = $this->normalizers[$field];
-        $value = (string) ($this->$field ?? '');
-        $this->$field = (string) $callable($value); // cast نهایی
+        $this->$field = (string) $callable((string) ($this->$field ?? ''));
     }
 
     public function normalizeAll(): void
@@ -68,18 +67,7 @@ class extends Component
         }
     }
 
-    public function continueRegister(): void
-    {
-        $this->normalizeAll();
-        $this->validate();
-
-
-        Flux::modal('edit-profile')->show();
-        $this->sendOtp();
-
-
-        // مرحله بعدی ثبت‌نام...
-    }
+    /* ----------------------------- قوانین ------------------------------- */
 
     protected function rules(): array
     {
@@ -98,69 +86,10 @@ class extends Component
         ];
     }
 
-    public bool $otpSent = false;
-
-    public function sendOtp(): void
+    public function continueRegister(): void
     {
-        $result = $this->sms->sendOtp(
-            mobile: $this->mobile_number,
-            code: '1234567',
-        );
-
-        if (! ($result['R_Success'] ?? false)) {
-            $this->addError('mobile_number', $result['R_Message'] ?? 'ارسال کد تأیید ناموفق بود.');
-
-            return;
-        }
-
-        session()->flash('success', 'کد تأیید ارسال شد.');
-    }
-
-    public function sendNormalSms(): void
-    {
-
-        $result = $this->sms->sendSms(
-            body: '12222233',
-            mobiles: [$this->mobile_number],
-        );
-
-        if (! ($result['R_Success'] ?? false)) {
-            $this->addError('message', $result['R_Message'] ?? 'ارسال پیامک ناموفق بود.');
-
-            return;
-        }
-
-        session()->flash('success', 'پیامک با موفقیت ارسال شد.');
-    }
-
-
-
-
-
-    public string $mobile_nu = '09177755924';
-
-    public ?string $smsStatus = null;
-
-    public ?string $smsError = null;
-    public function prepareSmsTest(): void
-    {
-
-        $this->smsError = null;
-        $this->smsStatus = 'درخواست ارسال پیامک ثبت شد. در حال ارسال...';
-
-        $this->dispatch('send-normal-sms-test', mobile: $this->mobile_nu);
-        Flux::modal('edit-profile')->show();
-    }
-
-    public function smsTestSent(?string $message = null): void
-    {
-        $this->smsError = null;
-        $this->smsStatus = $message ?: 'پیامک ارسال شد.';
-    }
-
-    public function smsTestFailed(?string $message = null): void
-    {
-        $this->smsStatus = null;
-        $this->smsError = $message ?: 'ارسال پیامک ناموفق بود.';
+        $this->normalizeAll();
+        $this->validate();
+        Flux::modal('otp-verify')->show();
     }
 };

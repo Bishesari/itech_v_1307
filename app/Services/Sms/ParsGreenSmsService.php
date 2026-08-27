@@ -6,16 +6,15 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-class ParsGreenSmsService
+readonly class ParsGreenSmsService
 {
     public function __construct(
-        private readonly string $apiKey,
-        private readonly string $baseUrl,
-        private readonly ?string $defaultSmsNumber = null,
-        private readonly int $otpTemplateId = 0,
-        private readonly bool $otpAddName = false,
-    ) {
-    }
+        private string $apiKey,
+        private string $baseUrl,
+        private ?string $defaultSmsNumber = null,
+        private int $otpTemplateId = 0,
+        private bool $otpAddName = false,
+    ) {}
 
     public function sendOtp(string $mobile, string $code, ?int $templateId = null): array
     {
@@ -50,9 +49,9 @@ class ParsGreenSmsService
         }
 
         try {
-            $response = Http::baseUrl(rtrim($this->baseUrl, '/') . '/Apiv2')
+            $response = Http::baseUrl(rtrim($this->baseUrl, '/').'/Apiv2')
                 ->withHeaders([
-                    'authorization' => 'BASIC APIKEY:' . $this->apiKey,
+                    'authorization' => 'BASIC APIKEY:'.$this->apiKey,
                     'Content-Type' => 'application/json;charset=utf-8',
                 ])
                 ->timeout(15)
@@ -63,7 +62,7 @@ class ParsGreenSmsService
         }
 
         if (! $response->successful()) {
-            throw new RuntimeException('ParsGreen HTTP error: ' . $response->status());
+            throw new RuntimeException('ParsGreen HTTP error: '.$response->status());
         }
 
         $data = $response->json();
