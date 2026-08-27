@@ -46,3 +46,6 @@ Route::post('/test/send-normal-sms', function (Request $request, ParsGreenSmsSer
 })
     ->middleware(['web', 'throttle:5,1'])
     ->name('test.send-normal-sms');
+
+
+
